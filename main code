@@ -1,0 +1,150 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+using namespace std;
+
+// Base class
+class Person {
+protected:
+    string name;
+    int age;
+public:
+    void input_personal_info() {
+        cout << "Enter name: ";
+        getline(cin, name);
+        cout << "Enter age: ";
+        cin >> age;
+        cin.ignore();  // flush newline
+    }
+
+    void display_personal_info() const {
+        cout << "Name: " << name << "\nAge: " << age << endl;
+    }
+};
+
+// Derived class from Person
+class Student : public Person {
+protected:
+    int roll_number;
+    string course;
+public:
+    void input_student_info() {
+        input_personal_info();
+        cout << "Enter roll number: ";
+        cin >> roll_number;
+        cin.ignore();
+        cout << "Enter course: ";
+        getline(cin, course);
+    }
+
+    void display_student_info() const {
+        display_personal_info();
+        cout << "Roll Number: " << roll_number << "\nCourse: " << course << endl;
+    }
+
+    int get_roll_number() const {
+        return roll_number;
+    }
+};
+
+// Derived class from Student (multilevel inheritance)
+class Exam : public Student {
+protected:
+    vector<string> subjects;
+    vector<float> marks;
+    int num_subjects;
+public:
+    void input_exam_data() {
+        input_student_info();
+        cout << "Enter number of subjects: ";
+        cin >> num_subjects;
+        subjects.resize(num_subjects);
+        marks.resize(num_subjects);
+
+        cin.ignore();
+        for (int i = 0; i < num_subjects; ++i) {
+            cout << "Enter subject " << i + 1 << ": ";
+            getline(cin, subjects[i]);
+            cout << "Enter marks in " << subjects[i] << ": ";
+            cin >> marks[i];
+            cin.ignore();
+        }
+    }
+
+    void display_exam_data() const {
+        display_student_info();
+        cout << "Subjects and Marks:\n";
+        for (int i = 0; i < num_subjects; ++i) {
+            cout << setw(15) << left << subjects[i] << ": " << marks[i] << endl;
+        }
+    }
+
+    float get_total_marks() const {
+        float total = 0;
+        for (float m : marks) total += m;
+        return total;
+    }
+
+    float get_average_marks() const {
+        return get_total_marks() / num_subjects;
+    }
+
+    string get_name() const {
+        return name;
+    }
+};
+
+// Derived class from Exam (further multilevel)
+class Result : public Exam {
+public:
+    void display_result() {
+        display_exam_data();
+        float avg = get_average_marks();
+        cout << "\nTotal Marks: " << get_total_marks();
+        cout << "\nAverage: " << avg;
+
+        cout << "\nGrade: ";
+        if (avg >= 90)
+            cout << "A+";
+        else if (avg >= 75)
+            cout << "A";
+        else if (avg >= 60)
+            cout << "B";
+        else if (avg >= 40)
+            cout << "C";
+        else
+            cout << "Fail";
+
+        cout << "\n-------------------------\n";
+    }
+};
+
+// Main Application
+int main() {
+    vector<Result> students;
+    int choice;
+
+    do {
+        cout << "\n=== Student Management System ===";
+        cout << "\n1. Add Student Result";
+        cout << "\n2. Display All Results";
+        cout << "\n3. Exit";
+        cout << "\nEnter your choice: ";
+        cin >> choice;
+        cin.ignore();
+
+        if (choice == 1) {
+            Result r;
+            r.input_exam_data();
+            students.push_back(r);
+        } else if (choice == 2) {
+            cout << "\n--- All Student Results ---\n";
+            for (auto &s : students)
+                s.display_result();
+        }
+
+    } while (choice != 3);
+
+    cout << "Exiting system.\n";
+    return 0;
+}
